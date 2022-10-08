@@ -2,9 +2,53 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/home/ananjaygurjar/codes/Blockchain/SmartContractLottery/contracts/Raffle..sol": {
-      "lastModificationDate": 1665247503423,
-      "contentHash": "db4113464d2c45558a5bbb099c219f47",
+      "lastModificationDate": 1665251641686,
+      "contentHash": "e654520f4a7fda582e2eae42d747fc76",
       "sourceName": "contracts/Raffle..sol",
+      "solcConfig": {
+        "version": "0.8.7",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.7"
+      ],
+      "artifacts": [
+        "Raffle"
+      ]
+    },
+    "/home/ananjaygurjar/codes/Blockchain/SmartContractLottery/node_modules/@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol": {
+      "lastModificationDate": 1665250525116,
+      "contentHash": "eb9cc526ef59dfc4d644f56ddca0633a",
+      "sourceName": "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol",
       "solcConfig": {
         "version": "0.8.7",
         "settings": {
@@ -37,10 +81,10 @@
       },
       "imports": [],
       "versionPragmas": [
-        "^0.8.7"
+        "^0.8.4"
       ],
       "artifacts": [
-        "Raffle"
+        "VRFConsumerBaseV2"
       ]
     }
   }

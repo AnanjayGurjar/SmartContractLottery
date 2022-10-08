@@ -8,9 +8,12 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
+//we need to inherit VRFConsumerBase
+import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
+
 error Raffle__NotEnoughEthEntered();
 
-contract Raffle {
+contract Raffle is VRFConsumerBaseV2 {
 	/*State Variables*/
 	uint256 private immutable i_entranceFee;
 	//payable since we need to pay the players if they win
@@ -19,7 +22,10 @@ contract Raffle {
 	/* Events */
 	event RaffleEnter(address indexed player);
 
-	constructor(uint256 entranceFee) {
+	//verfCoordinator is the address of the contract that does the random number verification
+	constructor(address vrfCorrdinatorV2, uint256 entranceFee)
+		VRFConsumerBaseV2(vrfCorrdinatorV2)
+	{
 		i_entranceFee = entranceFee;
 	}
 
@@ -35,6 +41,12 @@ contract Raffle {
 	}
 
 	function pickRandomWinner() private {}
+
+	//fulfill random numbers
+	function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords)
+		internal
+		override
+	{}
 
 	function getEntranceFee() public view returns (uint256) {
 		return i_entranceFee;
