@@ -6,7 +6,6 @@
 // Chainlink Oracle -> Randomness, Automated Execution (Chainlink Keeper)
 
 //SPDX-License-Identifier: MIT
-// SPDX-License-Identifier: SEE LICENSE IN LICENSE
 pragma solidity ^0.8.7;
 
 error Raffle__NotEnoughEthEntered();
@@ -28,9 +27,10 @@ contract Raffle {
 		if (msg.value < i_entranceFee) {
 			revert Raffle__NotEnoughEthEntered();
 		}
+		//since, msg.sender is not a payable address we need to typecast it to payable
 		s_players.push(payable(msg.sender));
 
-		//emiting the event
+		//emiting the event(as we update any dynamic array or mapping)
 		emit RaffleEnter(msg.sender);
 	}
 
