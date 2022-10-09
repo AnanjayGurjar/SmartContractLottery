@@ -52,7 +52,7 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
 
 	//verfCoordinator is the address of the contract that does the random number verification
 	constructor(
-		address vrfCoordinatorV2,
+		address vrfCoordinatorV2, //contract: hence we need a mock for this
 		uint256 entranceFee,
 		bytes32 gasLane,
 		uint64 subscriptionId,
@@ -167,8 +167,27 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
 		return s_raffleState;
 	}
 
-	function getNumWords() public pure returns (uint256) {
+	function getNumWords()
+		public
+		pure
+		returns (
+			/*view*/
+			uint256
+		)
+	{
 		//pure is different from view as view is used to read storage variable but since it is constant we can use pure
 		return NUM_WORDS;
+	}
+
+	function getNumberOfPlayers() public view returns (uint256) {
+		return s_players.length;
+	}
+
+	function getLatestTimeStamp() public view returns (uint256) {
+		return s_lastTimeStamp;
+	}
+
+	function getRequestConfirmations() public pure returns (uint256) {
+		return REQUEST_CONFIRMATIONS;
 	}
 }
