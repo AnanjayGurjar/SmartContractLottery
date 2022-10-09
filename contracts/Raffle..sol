@@ -11,11 +11,12 @@ pragma solidity ^0.8.7;
 //we need to inherit VRFConsumerBase
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
+import "@chainlink/contracts/src/v0.8/interfaces/KeeperCompatibleInterface.sol";
 
 error Raffle__NotEnoughEthEntered();
 error Raffle__TransferFailed();
 
-contract Raffle is VRFConsumerBaseV2 {
+contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
 	/*State Variables*/
 	uint256 private immutable i_entranceFee;
 	//payable since we need to pay the players if they win
@@ -61,7 +62,25 @@ contract Raffle is VRFConsumerBaseV2 {
 		emit RaffleEnter(msg.sender);
 	}
 
-	function requestRandomWinner() private {
+	/**
+	 * @dev This is the function that the chainlink keeper nodes call they look for the 'upkeepNeeded' return true
+	 * The following should be true in order to return true:
+	 *
+	 */
+
+	function checkUpkeep(
+		bytes calldata /*checkData*/
+	)
+		external
+		override
+		returns (
+			bool upkeepNeeded,
+			bytes memory /* performData */
+		)
+	{}
+
+	function requestRandomWinner() external {
+		//two tarnsaction process: 1. request the random number 2. Do something with it
 		uint256 requestId = i_vrfCoordinator.requestRandomWords(
 			i_gasLane, //gasLane : the maximum gas price you are willing to pay for a request in wei.
 			i_subscriptionId, //subscription that we need to fund the requests
