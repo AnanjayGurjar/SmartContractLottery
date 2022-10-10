@@ -6,7 +6,7 @@ const GAS_PRICE_LINK = 1e9; //Chainlink Nodes pay the gas fees to give us random
 
 module.exports = async function ({ getNamedAccounnts, deployments }) {
 	const { deploy, log } = deployments;
-	const { deployer } = await getNamedAccounnts();
+	const { deployer } = await getNamedAccounts();
 	const chainId = network.name.chainId;
 	const args = [BASE_FEE, GAS_PRICE_LINK];
 
