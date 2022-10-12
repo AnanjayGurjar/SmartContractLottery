@@ -130,6 +130,8 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
 			i_callbackGasLimit, //limit for how much gas to use for the callback request to your contract's fulfillRandomWords()
 			NUM_WORDS //number of random numbers we want to get
 		);
+
+		//this is redundant as vrfCoordinator itself emits an event with requestId
 		emit RequestedRaffleWinner(requestId);
 	}
 
