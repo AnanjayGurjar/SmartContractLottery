@@ -27,7 +27,7 @@ const {
 				interval = await raffle.getInterval();
 			});
 
-			describe("constructor", async function () {
+			describe("constructor", function () {
 				it("initializes the raffle correctly", async function () {
 					// ideally we make our tests have just 1 assert per "it"
 					const raffleState = await raffle.getRaffleState();
@@ -40,7 +40,7 @@ const {
 				});
 			});
 
-			describe("enterRaffle", async function () {
+			describe("enterRaffle", function () {
 				it("reverts when you don't pay enough", async function () {
 					await expect(raffle.enterRaffle()).to.be.revertedWith(
 						"Raffle__NotEnoughEthEntered"
@@ -79,6 +79,61 @@ const {
 					await expect(
 						raffle.enterRaffle({ value: raffleEntranceFee })
 					).to.be.revertedWith("Raffle__NotOpen");
+				});
+			});
+
+			describe("checkUpkeep", function () {
+				it("returns false if people haven't sent any eth", async function () {
+					await network.provider.send("evm_increaseTime", [
+						interval.toNumber() + 1,
+					]);
+					await network.provider.send("evm_mine", []);
+					//callstack is used to simulate how calling a particular transaction would react like
+					const { upkeepNeeded } =
+						await raffle.callStatic.checkUpkeep([]); //because raffle.checkUpkeep([]) will kickoff transaction as it is not a view function
+					assert(!upkeepNeeded);
+				});
+
+				it("returns false if raffle isn't open", async function () {
+					await raffle.enterRaffle({ value: raffleEntranceFee });
+					await network.provider.send("evm_increaseTime", [
+						interval.toNumber() + 1,
+					]);
+					await network.provider.send("evm_mine", []);
+					await raffle.performUpkeep([]);
+					const raffleState = await raffle.getRaffleState();
+					const { upkeepNeeded } =
+						await raffle.callStatic.checkUpkeep([]);
+					assert.equal(raffleState.toString(), "1");
+					assert.equal(upkeepNeeded, false);
+				});
+
+				it("returns false if enough time hasn't passed", async () => {
+					await raffle.enterRaffle({ value: raffleEntranceFee });
+					await network.provider.send("evm_increaseTime", [
+						interval.toNumber() - 5,
+					]); // use a higher number here if this test fails
+					await network.provider.request({
+						method: "evm_mine",
+						params: [],
+					});
+					const { upkeepNeeded } =
+						await raffle.callStatic.checkUpkeep("0x"); // upkeepNeeded = (timePassed && isOpen && hasBalance && hasPlayers)
+					assert(!upkeepNeeded);
+				});
+
+				it("returns true if enough time has passed, has players, eth, and is open", async () => {
+					await raffle.enterRaffle({ value: raffleEntranceFee });
+					await network.provider.send("evm_increaseTime", [
+						interval.toNumber() + 1,
+					]);
+					await network.provider.request({
+						method: "evm_mine",
+						params: [],
+					});
+					const { upkeepNeeded } =
+						await raffle.callStatic.checkUpkeep("0x"); // upkeepNeeded = (timePassed && isOpen && hasBalance && hasPlayers)
+					assert(upkeepNeeded);
 				});
 			});
 	  });
