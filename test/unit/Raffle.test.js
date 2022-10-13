@@ -168,4 +168,87 @@ const {
 					assert(raffleState.toString() == "1");
 				});
 			});
+
+			describe("fulfillRandomWords", function () {
+				beforeEach(async function () {
+					await raffle.enterRaffle({ value: raffleEntranceFee });
+					await network.provider.send("evm_increaseTime", [
+						interval.toNumber() + 1,
+					]);
+					await network.provider.send("evm_mine", []);
+				});
+
+				it("can only be called after performUpkeeep", async function () {
+					await expect(
+						vrfCoordinatorV2Mock.fulfillRandomWords(
+							0,
+							raffle.address
+						)
+					).to.be.revertedWith("nonexistent request");
+
+					await expect(
+						vrfCoordinatorV2Mock.fulfillRandomWords(
+							1,
+							raffle.address
+						)
+					).to.be.revertedWith("nonexistent request");
+				});
+
+				it("picks a winner, resets the lottery and sends the money", async function () {
+					//additional people who are entering the lottery
+					const additionalEntrance = 3;
+					const accounts = await ethers.getSigners();
+					const startingAccountIndex = 1; //deployer is 0
+					for (
+						let i = startingAccountIndex;
+						i < startingAccountIndex + additionalEntrance;
+						i++
+					) {
+						const accountConnectedRaffle = raffle.connect(
+							accounts[i]
+						);
+						await accountConnectedRaffle.enterRaffle({
+							value: raffleEntranceFee,
+						});
+					}
+					const startingTimeStamp = await raffle.getLatestTimeStamp();
+
+					//performUpkeep (mock being chainlink keeper)
+					//fulfillRandomWords( mock being the Chainlink VRF)
+					// We will have to wait for the fulfillRandomWords to be called
+					await new Promise(async (resolve, reject) => {
+						raffle.once("WinnerPicked", async () => {
+							//the event fired below will be resolved by our listener
+							try {
+								const recentWinner =
+									await raffle.getRecentWinner();
+								console.log(recentWinner);
+								console.log(accounts[0].address);
+								console.log(accounts[1].address);
+								console.log(accounts[2].address);
+								console.log(accounts[3].address);
+								const raffleState =
+									await raffle.getRaffleState();
+								const endingTimeStamp =
+									await raffle.getLastTimeStamp();
+								const numPlayers =
+									await raffle.getNumberOfPlayers();
+								assert.equal(numPlayers.toString(), 0);
+								assert.equal(raffleState.toString(), "0");
+								assert(endingTimeStamp > startingTimeStamp);
+								resolve();
+							} catch (e) {
+								reject(e);
+							}
+						});
+
+						const tx = await raffle.performUpkeep([]);
+						const txReceipt = tx.wait(1);
+						await vrfCoordinatorV2Mock.fulfillRandomWords(
+							txReceipt.events[1].args.requestId,
+							raffle.address
+						);
+					});
+				});
+			});
 	  });
