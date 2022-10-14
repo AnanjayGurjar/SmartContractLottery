@@ -21,19 +21,20 @@ module.exports = {
 	networks: {
 		hardhat: {
 			chainId: 31337,
-			blockConfirmations: 1,
+            blockConfirmations: 1,
 		},
 		rinkeby: {
 			chainId: 4,
-			blockCofirmations: 6,
+            blockConfirmations: 6,
 			url: RINKEBY_RPC_URL,
 			accounts: [RINKEBY_PRIVATE_KEY],
 		},
 		goerli: {
-			url: GOERLI_RPC_URL,
-			accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
-			saveDeployments: true,
 			chainId: 5,
+			url: GOERLI_RPC_URL,
+            blockConfirmations: 6,
+			accounts: [PRIVATE_KEY],
+			saveDeployments: true,
 		},
 	},
 	gasReporter: {
@@ -54,5 +55,10 @@ module.exports = {
 	},
 	mocha: {
 		timeout: 300000, //300 sec
+	},
+	etherscan: {
+		apiKey: {
+			goerli: ETHERSCAN_API_KEY,
+		},
 	},
 };

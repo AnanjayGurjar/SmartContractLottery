@@ -12,6 +12,7 @@ const VRF_SUB_FUND_AMOUNT = ethers.utils.parseEther("2");
 module.exports = async function ({ getNamedAccounts, deployments }) {
 	const { deploy, log } = deployments;
 	const { deployer } = await getNamedAccounts();
+	console.log(deployer);
 	const chainId = network.config.chainId;
 	let vrfCoordinatorV2Address, subscriptionId;
 
@@ -30,8 +31,7 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
 			VRF_SUB_FUND_AMOUNT
 		);
 	} else {
-		vrfCoordinatorV2Address =
-			networkConfig[chainId]["VRFCoordinatorV2Mock"];
+		vrfCoordinatorV2Address = networkConfig[chainId]["vrfCoordinatorV2"];
 		subscriptionId = networkConfig[chainId]["subscriptionId"];
 	}
 	const entranceFee = networkConfig[chainId]["entranceFee"];
@@ -52,7 +52,7 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
 		from: deployer,
 		args: args,
 		log: true,
-		waitConfirmations: network.config.blockCofirmations || 1,
+		waitConfirmations: network.config.blockConfirmations || 1,
 	});
 
 	if (
