@@ -198,7 +198,7 @@ const {
 					//additional people who are entering the lottery
 					const additionalEntrance = 3;
 					const accounts = await ethers.getSigners();
-					const startingAccountIndex = 1; //deployer is 0
+					const startingAccountIndex = 1; //since, deployer is 0
 					for (
 						let i = startingAccountIndex;
 						i < startingAccountIndex + additionalEntrance;
@@ -212,7 +212,6 @@ const {
 						});
 					}
 					const startingTimeStamp = await raffle.getLatestTimeStamp();
-
 					//performUpkeep (mock being chainlink keeper)
 					//fulfillRandomWords( mock being the Chainlink VRF)
 					// We will have to wait for the fulfillRandomWords to be called
@@ -230,21 +229,36 @@ const {
 								const raffleState =
 									await raffle.getRaffleState();
 								const endingTimeStamp =
-									await raffle.getLastTimeStamp();
+									await raffle.getLatestTimeStamp();
 								const numPlayers =
 									await raffle.getNumberOfPlayers();
+								const winnerEndingBalance =
+									await accounts[1].getBalance();
 								assert.equal(numPlayers.toString(), 0);
 								assert.equal(raffleState.toString(), "0");
 								assert(endingTimeStamp > startingTimeStamp);
+
+								assert.equal(
+									winnerEndingBalance.toString(),
+									winnerStartingBalalnce.add(
+										raffleEntranceFee
+											.mul(additionalEntrance)
+											.add(raffleEntranceFee)
+											.toString()
+									)
+								);
 								resolve();
 							} catch (e) {
 								reject(e);
 							}
 						});
-
 						const tx = await raffle.performUpkeep([]);
-						const txReceipt = tx.wait(1);
+						const txReceipt = await tx.wait(1);
+						//account 1 is getting picked up as winner
+						const winnerStartingBalalnce =
+							await accounts[1].getBalance();
 						await vrfCoordinatorV2Mock.fulfillRandomWords(
+							//this fullfillRandomWords will emit a "WinnerPicked" event
 							txReceipt.events[1].args.requestId,
 							raffle.address
 						);
