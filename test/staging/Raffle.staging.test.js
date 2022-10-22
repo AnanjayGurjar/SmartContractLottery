@@ -20,6 +20,7 @@ developmentChains.includes(network.name)
 					const startingTimeStamp = await raffle.getLatestTimeStamp();
 					const accounts = await ethers.getSigners();
 
+					//setting up listener before entering the raffle
 					await new Promise(async (resolve, reject) => {
 						raffle.once("WinnerPicked", async () => {
 							console.log("WinnerPicekd event fired");
@@ -28,7 +29,8 @@ developmentChains.includes(network.name)
 									await raffle.getRecentWinner();
 								const raffleState =
 									await raffle.getRaffleState();
-								const winnerBalance =
+								//since ony our deployer entered the lottery
+								const winnerEndingBalance =
 									await accounts[0].getBalance();
 								const endingTimeStamp =
 									await raffle.getLatestTimeStamp();
